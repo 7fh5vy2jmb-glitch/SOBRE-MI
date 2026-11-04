@@ -1,0 +1,575 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Ángel, creador web</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout: cinta de anuncio arriba, hero con nombre gigante + ventana de código + vista previa flotante, cartel de anuncio en verde, y secciones que aparecen al hacer scroll. */
+:root {
+  --bg: #eef3ec;
+  --surface: #e1eadf;
+  --fg: #12261c;
+  --muted: #475f51;
+  --accent: #1c7f46;
+  --accent-ink: #f3faf5;
+  --line: #c3d2c2;
+  --code-bg: #0f2a1f;
+  --code-fg: #d3eadb;
+  --code-tag: #7fd9a1;
+  --code-attr: #e9c77b;
+  --code-dim: #6f9580;
+  --glow: rgba(28, 127, 70, 0.16);
+  --font-display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1f17; --surface: #142e24; --fg: #e3f0e6; --muted: #9ab4a3;
+    --accent: #5fd08a; --accent-ink: #062014; --line: #244236; --glow: rgba(95, 208, 138, 0.14);
+    --code-bg: #081510;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1f17; --surface: #142e24; --fg: #e3f0e6; --muted: #9ab4a3;
+  --accent: #5fd08a; --accent-ink: #062014; --line: #244236; --glow: rgba(95, 208, 138, 0.14);
+  --code-bg: #081510;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 18px; line-height: 1.7;
+}
+.wrap {
+  width: 100%; max-width: 1120px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+a { color: inherit; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid var(--accent); outline-offset: 3px;
+}
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.05; letter-spacing: -0.02em; }
+.label { font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+/* fondo ambiental */
+.bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.bg i { position: absolute; border-radius: 50%; width: 60vmax; height: 60vmax; background: radial-gradient(circle, var(--glow), transparent 65%); }
+.bg i:nth-child(1) { top: -25vmax; right: -20vmax; animation: drift1 26s ease-in-out infinite alternate; }
+.bg i:nth-child(2) { bottom: -30vmax; left: -25vmax; animation: drift2 32s ease-in-out infinite alternate; }
+@keyframes drift1 { to { transform: translate(-12vmax, 10vmax) scale(1.15); } }
+@keyframes drift2 { to { transform: translate(14vmax, -8vmax) scale(1.1); } }
+
+/* progreso de lectura */
+.progress { position: fixed; left: 0; right: 0; top: env(safe-area-inset-top, 0px); height: 4px; background: var(--accent); transform: scaleX(0); transform-origin: left; z-index: 20; }
+
+/* cinta de anuncio */
+.ann { display: block; background: var(--accent); color: var(--accent-ink); overflow: hidden; text-decoration: none; font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; padding-block: 10px; }
+.track { display: flex; width: max-content; animation: marquee 34s linear infinite; }
+.ann:hover .track { animation-play-state: paused; }
+.grp { display: flex; align-items: center; gap: 28px; padding-right: 28px; white-space: nowrap; }
+.grp i { width: 7px; height: 7px; background: var(--accent-ink); transform: rotate(45deg); display: inline-block; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+/* barra superior */
+.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding-block: 22px; }
+.brand { font-family: var(--font-display); font-weight: 800; font-size: 22px; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; }
+.brand i { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); display: inline-block; animation: pulse 2.4s ease-out infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 var(--glow), 0 0 0 0 var(--accent); } 70% { box-shadow: 0 0 0 10px transparent, 0 0 0 0 transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+.nav { display: flex; flex-wrap: wrap; gap: 6px 22px; font-family: var(--font-mono); font-size: 14px; }
+.nav a { text-decoration: none; color: var(--muted); padding: 4px 0; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; }
+.nav a:hover { color: var(--fg); border-bottom-color: var(--accent); }
+
+/* hero */
+.hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 48px; align-items: center; padding-block: 48px 72px; }
+.hero h1 { font-size: clamp(76px, 15vw, 168px); font-weight: 800; line-height: 0.88; letter-spacing: -0.045em; color: var(--accent); display: flex; }
+.hero h1 span { display: inline-block; animation: rise .8s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i) * 0.08s + 0.1s); }
+@keyframes rise { from { opacity: 0; transform: translateY(0.5em) rotate(4deg); } to { opacity: 1; transform: none; } }
+.hero .label, .hero .role, .hero .lead, .hero .cta-row { animation: fade .8s ease both; }
+.hero .label { animation-delay: .05s; } .hero .role { animation-delay: .55s; } .hero .lead { animation-delay: .7s; } .hero .cta-row { animation-delay: .85s; }
+@keyframes fade { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.hero .role { font-family: var(--font-display); font-weight: 500; font-size: clamp(22px, 3.4vw, 34px); line-height: 1.2; margin-top: 22px; max-width: 18em; }
+.hero .lead { color: var(--muted); max-width: 34em; margin: 20px 0 0; }
+.cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+.btn { font-family: var(--font-display); font-weight: 800; font-size: 17px; text-decoration: none; padding: 14px 24px; border-radius: 6px; border: 2px solid var(--accent); display: inline-flex; align-items: center; gap: 10px; cursor: pointer; transition: transform .2s, background .2s, border-color .2s; }
+.btn span.ar { transition: transform .2s; display: inline-block; }
+.btn:hover { transform: translateY(-2px); }
+.btn:hover span.ar { transform: translateX(5px); }
+.btn.solid { background: var(--accent); color: var(--accent-ink); }
+.btn.ghost { background: transparent; color: var(--fg); border-color: var(--line); }
+.btn.ghost:hover { border-color: var(--accent); }
+
+.stage { position: relative; min-width: 0; padding-bottom: 84px; animation: fade 1s ease .5s both; }
+.win { background: var(--code-bg); color: var(--code-fg); border-radius: 10px; overflow: hidden; min-width: 0; border: 1px solid var(--line); }
+.win-bar { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); font-family: var(--font-mono); font-size: 12px; color: var(--code-dim); }
+.win-bar span.d { width: 10px; height: 10px; border-radius: 50%; background: var(--code-dim); opacity: 0.55; }
+.win-bar b { font-weight: 400; margin-left: 8px; }
+.win pre { margin: 0; padding: 20px 20px 24px; overflow-x: auto; font-family: var(--font-mono); font-size: 14px; line-height: 1.75; }
+.t { color: var(--code-tag); } .a { color: var(--code-attr); } .c { color: var(--code-dim); }
+.cur { display: inline-block; width: 8px; height: 1em; background: var(--code-tag); vertical-align: text-bottom; animation: blink 1.1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.preview { position: absolute; right: 0; bottom: 0; width: min(76%, 290px); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 22px 44px rgba(0, 0, 0, 0.28); overflow: hidden; animation: float 6s ease-in-out infinite; }
+@keyframes float { 50% { transform: translateY(-10px); } }
+.pv-bar { display: flex; align-items: center; gap: 6px; padding: 9px 12px; background: var(--surface); }
+.pv-bar span { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.pv-bar em { margin-left: 6px; font-family: var(--font-mono); font-size: 11px; font-style: normal; color: var(--muted); }
+.pv-body { padding: 16px; display: grid; gap: 8px; }
+.pv-body strong { font-family: var(--font-display); font-size: 20px; line-height: 1.1; color: var(--accent); }
+.pv-body i { height: 6px; border-radius: 3px; background: var(--line); display: block; }
+.pv-body i:nth-of-type(2) { width: 70%; }
+.pv-body u { text-decoration: none; justify-self: start; margin-top: 6px; font-family: var(--font-display); font-weight: 800; font-size: 13px; background: var(--accent); color: var(--accent-ink); padding: 7px 14px; border-radius: 4px; }
+
+/* secciones */
+section { padding-block: 72px; border-top: 1px solid var(--line); }
+.sec-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 20px; margin-bottom: 36px; }
+.sec-head h2 { font-size: clamp(36px, 6vw, 60px); font-weight: 800; }
+.sec-head::after { content: ""; flex: 1 1 80px; height: 2px; background: var(--accent); transform-origin: left; align-self: center; opacity: 0.5; }
+
+/* anuncio */
+.ad-sec { border-top: 0; padding-block: 8px 72px; }
+.ad { position: relative; background: var(--accent); color: var(--accent-ink); border-radius: 14px; padding: clamp(28px, 5vw, 60px); display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr); gap: 40px; align-items: center; overflow: hidden;
+  background-image: linear-gradient(color-mix(in srgb, var(--accent-ink) 9%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--accent-ink) 9%, transparent) 1px, transparent 1px);
+  background-size: 34px 34px; }
+.ad .label { color: var(--accent-ink); opacity: 0.85; }
+.ad h2 { font-size: clamp(38px, 6.4vw, 76px); font-weight: 800; line-height: 0.98; margin: 14px 0 20px; }
+.ad p { margin: 0; max-width: 32em; font-size: 19px; }
+.ad .cta-row .btn.solid { background: var(--accent-ink); color: var(--accent); border-color: var(--accent-ink); }
+.ad .cta-row .btn.ghost { color: var(--accent-ink); border-color: var(--accent-ink); }
+.ad ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; position: relative; z-index: 1; }
+.ad li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 12px; align-items: start; font-family: var(--font-display); font-weight: 500; font-size: 19px; line-height: 1.25; }
+.ad li::before { content: "✓"; width: 26px; height: 26px; border-radius: 50%; background: var(--accent-ink); color: var(--accent); display: grid; place-items: center; font-size: 14px; font-weight: 800; }
+.badge { position: absolute; top: 18px; right: 18px; width: 108px; height: 108px; color: var(--accent-ink); animation: spin 22s linear infinite; opacity: 0.9; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* sobre mí */
+.about { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 56px; align-items: start; }
+.prose { max-width: 66ch; min-width: 0; }
+.prose p { margin: 0 0 1.3em; }
+.prose p:first-child::first-line { font-weight: 600; }
+.prose h3 { font-size: 28px; margin: 1.6em 0 0.6em; }
+.pull { font-family: var(--font-display); font-weight: 500; font-size: clamp(24px, 3.2vw, 32px); line-height: 1.25; letter-spacing: -0.01em; margin: 1.6em 0; padding-left: 20px; border-left: 4px solid var(--accent); text-wrap: balance; }
+.facts { background: var(--surface); border-radius: 10px; padding: 24px; min-width: 0; position: sticky; top: 24px; }
+.facts dl { margin: 18px 0 0; display: grid; gap: 16px; }
+.facts dt { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.facts dd { margin: 2px 0 0; font-size: 17px; line-height: 1.4; }
+.swatch { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); margin-right: 8px; }
+
+/* servicios */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+.card { background: var(--surface); border-radius: 10px; padding: 26px; min-width: 0; border: 2px solid transparent; transition: transform .25s, border-color .25s; }
+.card:hover { transform: translateY(-6px); border-color: var(--accent); }
+.card h3 { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
+.card p { margin: 0; color: var(--muted); font-size: 16.5px; line-height: 1.6; }
+.card .label { display: block; margin-bottom: 14px; color: var(--accent); }
+
+/* proceso */
+.steps { list-style: none; margin: 0; padding: 0; counter-reset: paso; }
+.steps li { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 8px 20px; padding: 26px 0; border-bottom: 1px solid var(--line); counter-increment: paso; }
+.steps li::before { content: counter(paso); font-family: var(--font-display); font-weight: 800; font-size: 44px; line-height: 1; color: var(--accent); }
+.steps h3 { font-size: 26px; margin-bottom: 6px; }
+.steps p { margin: 0; color: var(--muted); max-width: 58ch; }
+
+/* proyecto */
+.proj { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: center; }
+.proj h3 { font-size: clamp(32px, 5vw, 48px); font-weight: 800; margin-bottom: 14px; }
+.tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; padding: 0; list-style: none; }
+.tags li { font-family: var(--font-mono); font-size: 13px; padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); }
+.mock { background: var(--surface); border-radius: 10px; padding: 24px; min-width: 0; }
+.mock-row { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px dashed var(--line); font-size: 16px; }
+.mock-row:last-child { border-bottom: 0; }
+.mock-row span:last-child { font-family: var(--font-mono); font-size: 14px; color: var(--muted); white-space: nowrap; }
+.mock .label { margin-bottom: 8px; display: block; }
+
+/* herramientas */
+.tools { display: flex; flex-wrap: wrap; gap: 12px; padding: 0; margin: 0; list-style: none; }
+.tools li { font-family: var(--font-display); font-weight: 800; font-size: 22px; padding: 12px 22px; background: var(--surface); border-radius: 6px; transition: transform .2s, background .2s, color .2s; }
+.tools li:hover { transform: translateY(-4px) rotate(-2deg); background: var(--accent); color: var(--accent-ink); }
+
+/* contacto */
+.contact { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 48px; align-items: start; }
+.contact p { color: var(--muted); max-width: 34em; }
+.phone { background: var(--surface); border-radius: 10px; padding: 24px; display: grid; gap: 10px; margin-top: 24px; min-width: 0; }
+.phone strong { font-family: var(--font-display); font-weight: 800; font-size: clamp(28px, 4.4vw, 40px); line-height: 1.1; letter-spacing: -0.01em; word-break: break-word; user-select: all; }
+form { display: grid; gap: 16px; min-width: 0; }
+label { font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); display: grid; gap: 6px; }
+input, select, textarea { font: inherit; font-size: 17px; color: var(--fg); background: var(--surface); border: 2px solid var(--line); border-radius: 6px; padding: 12px 14px; width: 100%; min-width: 0; letter-spacing: normal; text-transform: none; transition: border-color .2s; }
+input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+textarea { min-height: 150px; resize: vertical; line-height: 1.5; }
+.out-note { font-family: var(--font-mono); font-size: 13px; color: var(--muted); min-height: 1.4em; margin: 0; }
+
+footer { border-top: 1px solid var(--line); padding-block: 36px 48px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 24px; font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+
+/* aparecer al hacer scroll: arranca visible a media opacidad */
+.js .rv { opacity: 0.45; transform: translateY(26px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.8,.2,1); transition-delay: var(--d, 0s); }
+.js .rv.in { opacity: 1; transform: none; }
+.js .sec-head::after { transform: scaleX(0.12); transition: transform 1s cubic-bezier(.2,.8,.2,1) .2s; }
+.js .sec-head.in::after { transform: scaleX(1); }
+
+@media (max-width: 860px) {
+  .hero, .about, .proj, .contact, .ad { grid-template-columns: minmax(0, 1fr); }
+  .hero { padding-block: 32px 48px; gap: 36px; }
+  .facts { position: static; }
+  section { padding-block: 56px; }
+  .ad-sec { padding-block: 8px 56px; }
+  .badge { display: none; }
+  .steps li { grid-template-columns: 48px minmax(0, 1fr); }
+  .steps li::before { font-size: 34px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .track, .bg i, .brand i, .preview, .badge, .cur { animation: none; }
+  .hero h1 span, .hero .label, .hero .role, .hero .lead, .hero .cta-row, .stage { animation: none; }
+  .js .rv { opacity: 1; transform: none; transition: none; }
+  .js .sec-head::after { transform: none; transition: none; }
+  .btn, .card, .tools li { transition: none; }
+}
+</style>
+<script>document.documentElement.classList.add('js');</script>
+
+<div class="bg" aria-hidden="true"><i></i><i></i></div>
+<div class="progress" id="progreso" aria-hidden="true"></div>
+
+<a class="ann" href="#contacto" aria-label="Estoy tomando proyectos nuevos. Ir al contacto">
+  <div class="track">
+    <div class="grp"><span>Proyectos nuevos abiertos</span><i></i><span>Páginas de presentación</span><i></i><span>Catálogos y tiendas</span><i></i><span>Portafolios</span><i></i><span>Rediseños</span><i></i><span>Cuéntame tu idea</span><i></i></div>
+    <div class="grp" aria-hidden="true"><span>Proyectos nuevos abiertos</span><i></i><span>Páginas de presentación</span><i></i><span>Catálogos y tiendas</span><i></i><span>Portafolios</span><i></i><span>Rediseños</span><i></i><span>Cuéntame tu idea</span><i></i></div>
+  </div>
+</a>
+
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="#inicio"><i></i>Ángel</a>
+    <nav class="nav" aria-label="Secciones">
+      <a href="#sobre">Sobre mí</a>
+      <a href="#servicios">Qué hago</a>
+      <a href="#proceso">Cómo trabajo</a>
+      <a href="#proyecto">Proyecto</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+  </header>
+
+  <main id="inicio">
+    <div class="hero">
+      <div>
+        <p class="label">Creador de sitios y páginas web</p>
+        <h1 aria-label="Ángel"><span aria-hidden="true" style="--i:0">Á</span><span aria-hidden="true" style="--i:1">n</span><span aria-hidden="true" style="--i:2">g</span><span aria-hidden="true" style="--i:3">e</span><span aria-hidden="true" style="--i:4">l</span></h1>
+        <p class="role">Diseño y programo sitios web que se ven bien, cargan rápido y se entienden a la primera.</p>
+        <p class="lead">Trabajo con negocios, marcas y personas que necesitan estar en internet con algo propio, claro y fácil de mantener.</p>
+        <div class="cta-row">
+          <a class="btn solid" href="#contacto">Cuéntame tu idea <span class="ar" aria-hidden="true">→</span></a>
+          <a class="btn ghost" href="#sobre">Conóceme</a>
+          <a class="btn ghost" data-wa hidden target="_blank" rel="noopener">WhatsApp</a>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="win" aria-label="Ejemplo de código HTML">
+          <div class="win-bar"><span class="d"></span><span class="d"></span><span class="d"></span><b>index.html</b></div>
+<pre><code><span class="t">&lt;section</span> <span class="a">class</span>=<span class="a">"hero"</span><span class="t">&gt;</span>
+  <span class="t">&lt;h1&gt;</span>Tu idea, en línea.<span class="t">&lt;/h1&gt;</span>
+  <span class="t">&lt;p&gt;</span>Diseño y programo
+     tu sitio web.<span class="t">&lt;/p&gt;</span>
+  <span class="t">&lt;a</span> <span class="a">href</span>=<span class="a">"#contacto"</span><span class="t">&gt;</span>
+    Hablemos
+  <span class="t">&lt;/a&gt;</span>
+<span class="t">&lt;/section&gt;</span>
+<span class="c">&lt;!-- verde, siempre verde --&gt;</span><span class="cur"></span></code></pre>
+        </div>
+        <div class="preview" aria-hidden="true">
+          <div class="pv-bar"><span></span><span></span><span></span><em>tu-sitio.com</em></div>
+          <div class="pv-body"><strong>Tu idea, en línea.</strong><i></i><i></i><u>Hablemos</u></div>
+        </div>
+      </div>
+    </div>
+
+    <section class="ad-sec" id="anuncio" aria-label="Anuncio">
+      <div class="ad rv">
+        <svg class="badge" viewBox="0 0 120 120" aria-hidden="true">
+          <defs><path id="circulo" d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0"/></defs>
+          <text font-size="11" font-family="JetBrains Mono, monospace" fill="currentColor" letter-spacing="2"><textPath href="#circulo" textLength="272" lengthAdjust="spacing">PROYECTOS NUEVOS · ABIERTO · </textPath></text>
+          <circle cx="60" cy="60" r="6" fill="currentColor"/>
+        </svg>
+        <div>
+          <span class="label">Anuncio · Proyectos abiertos</span>
+          <h2>¿Tu negocio ya tiene sitio web?</h2>
+          <p>Si todavía no, hagámoslo. Tú me cuentas la idea y yo me encargo del diseño, los textos y el código para que tus clientes te encuentren, te entiendan y te escriban.</p>
+          <div class="cta-row">
+            <a class="btn solid" href="#contacto">Quiero mi sitio <span class="ar" aria-hidden="true">→</span></a>
+            <a class="btn ghost" data-wa hidden target="_blank" rel="noopener">Escribir por WhatsApp</a>
+          </div>
+        </div>
+        <ul>
+          <li>Diseño a tu medida, con tus colores y tu estilo</li>
+          <li>Se ve bien en celular, tableta y computadora</li>
+          <li>Textos claros que invitan a escribirte</li>
+          <li>Publicación y ajustes después de entregar</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="sobre">
+      <div class="sec-head rv">
+        <h2>Sobre mí</h2>
+        <span class="label">Quién está detrás de la pantalla</span>
+      </div>
+      <div class="about">
+        <div class="prose">
+          <p class="rv">Hola, soy Ángel y me dedico a crear sitios y páginas web. Mi trabajo vive en ese cruce donde el diseño, el contenido y el código se encuentran: me gusta que una página no solo funcione, sino que se sienta cuidada, que tenga personalidad y que diga con claridad lo que tiene que decir.</p>
+          <p class="rv">Lo que más disfruto de este oficio es ver una idea que empezó como una conversación o un boceto convertirse en algo que cualquiera puede abrir desde su teléfono. Hay algo muy satisfactorio en escribir unas cuantas líneas de HTML, CSS y JavaScript y, minutos después, ver cómo toman forma en el navegador. Esa sensación todavía me emociona, y es la razón por la que sigo aprendiendo cada día.</p>
+          <p class="rv">Creo que un sitio web es mucho más que una tarjeta de presentación digital. Es el lugar donde tus clientes llegan a conocerte, a confiar en ti y a decidir si quieren trabajar contigo. Por eso me tomo el tiempo de entender primero a qué te dedicas, a quién le hablas y qué quieres que pase cuando alguien entre a tu página. Después viene lo bonito: los colores, las letras, las imágenes y el orden de cada sección.</p>
+
+          <p class="pull rv">Una buena página no se nota por lo complicada que es, sino por lo fácil que resulta usarla.</p>
+
+          <p class="rv">Soy de los que piensan que el diseño y el contenido van de la mano. De nada sirve una página preciosa si nadie entiende qué ofreces, y de nada sirve un texto excelente si está escondido en un diseño confuso. Por eso trabajo ambas cosas al mismo tiempo: pienso en los títulos, en la forma de explicar tu servicio, en los botones que invitan a dar el siguiente paso y en el recorrido que hace una persona desde que llega hasta que te escribe.</p>
+          <p class="rv">Me interesa mucho que lo que construyo sea práctico para quien lo va a usar todos los días. Si tienes una tienda, quiero que puedas actualizar tu catálogo sin pedirle ayuda a nadie. Si tienes un negocio de servicios, quiero que tus clientes encuentren tus datos, tus precios y tu forma de contacto en segundos. Si necesitas un portafolio, quiero que tu trabajo sea el protagonista y el sitio se haga a un lado para dejarlo brillar.</p>
+
+          <h3 class="rv">Cómo pienso mi trabajo</h3>
+          <p class="rv">Mi forma de trabajar es sencilla: platicar, proponer, construir y pulir. Prefiero explicar las cosas con palabras normales y no esconderme detrás de términos técnicos. Si algo no se puede hacer o no conviene, te lo digo. Si hay una forma más simple de lograr lo mismo, te la propongo. Y si algo no te convence, lo ajustamos hasta que te sientas cómodo con el resultado, porque el sitio es tuyo y tiene que reflejarte a ti.</p>
+          <p class="rv">También le doy mucha importancia a los detalles que casi nadie nota, pero que se sienten: que los textos se lean bien en el celular, que los botones tengan un tamaño cómodo para el dedo, que las imágenes no hagan lenta la página, que los colores tengan buen contraste y que todo se vea ordenado sin importar el tamaño de la pantalla. Un sitio bien hecho es el que no te da problemas cuando más lo necesitas.</p>
+          <p class="rv">Aprendo constantemente. La web cambia rápido, aparecen herramientas nuevas, técnicas nuevas y formas distintas de contar las cosas, y me gusta mantenerme al día probando, equivocándome, corrigiendo y volviendo a intentar. Cada proyecto me deja algo nuevo, y cada sitio que publico me hace mejor en lo siguiente.</p>
+
+          <h3 class="rv">Fuera del código</h3>
+          <p class="rv">Cuando no estoy frente al editor, sigo pensando en cosas visuales: me fijo en cómo están hechas las páginas que visito, en qué colores usan las marcas, en cómo se acomodan los textos en un cartel o en un empaque. Soy de esos que ven un buen diseño y se preguntan cómo lo harían en la web. Mi color favorito es el verde, y si miras este sitio con atención, ya te habrás dado cuenta.</p>
+          <p class="rv">Si llegaste hasta aquí, gracias por leerme. Si tienes un proyecto en mente, aunque todavía sea una idea a medias, escríbeme. Muchas de las mejores páginas empezaron justo así: con alguien que tenía algo que contar y no sabía por dónde empezar.</p>
+        </div>
+
+        <aside class="facts rv" aria-label="Datos rápidos">
+          <p class="label">Datos rápidos</p>
+          <dl>
+            <div><dt>Me dedico a</dt><dd>Crear sitios y páginas web</dd></div>
+            <div><dt>Hago</dt><dd>Diseño, contenido y código</dd></div>
+            <div><dt>Escribo en</dt><dd>HTML, CSS y JavaScript</dd></div>
+            <div><dt>Mi mesa de trabajo</dt><dd>VS Code y GitHub</dd></div>
+            <div><dt>Color favorito</dt><dd><span class="swatch"></span>Verde</dd></div>
+          </dl>
+        </aside>
+      </div>
+    </section>
+
+    <section id="servicios">
+      <div class="sec-head rv">
+        <h2>Qué hago</h2>
+        <span class="label">Cuatro formas de trabajar juntos</span>
+      </div>
+      <div class="cards">
+        <article class="card rv" style="--d:0s">
+          <span class="label">Presencia</span>
+          <h3>Páginas de presentación</h3>
+          <p>Un sitio claro para que tu negocio o tu marca tenga casa propia en internet: quién eres, qué ofreces y cómo contactarte, todo en una página bien ordenada.</p>
+        </article>
+        <article class="card rv" style="--d:.1s">
+          <span class="label">Venta</span>
+          <h3>Catálogos y tiendas</h3>
+          <p>Productos con fotos, precios y descripciones que tú mismo puedes editar, además de un registro sencillo de pedidos para que no se te pierda nada.</p>
+        </article>
+        <article class="card rv" style="--d:.2s">
+          <span class="label">Personal</span>
+          <h3>Portafolios y sitios personales</h3>
+          <p>Una página que cuenta tu historia y muestra tu trabajo con el estilo que te representa. Pensada para que la gente te recuerde después de visitarla.</p>
+        </article>
+        <article class="card rv" style="--d:.3s">
+          <span class="label">Mejora</span>
+          <h3>Rediseño y ajustes</h3>
+          <p>Si ya tienes un sitio que se ve viejo, carga lento o se rompe en el celular, lo reviso, lo ordeno y lo dejo funcionando como debe.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="proceso">
+      <div class="sec-head rv">
+        <h2>Cómo trabajo</h2>
+        <span class="label">De la idea a la página publicada</span>
+      </div>
+      <ol class="steps">
+        <li class="rv"><div>
+          <h3>Platicamos</h3>
+          <p>Me cuentas qué haces, a quién quieres llegar y qué esperas del sitio. Con eso defino qué páginas hacen falta y qué tiene que decir cada una.</p>
+        </div></li>
+        <li class="rv"><div>
+          <h3>Diseño y contenido</h3>
+          <p>Elijo colores, tipografías y estructura, y escribo o ajusto los textos para que se lean bien y vayan directo al punto. Revisamos juntos antes de programar.</p>
+        </div></li>
+        <li class="rv"><div>
+          <h3>Construcción</h3>
+          <p>Programo el sitio y lo pruebo en celular, tableta y computadora. Cuido la velocidad, la claridad y que todo funcione sin sorpresas.</p>
+        </div></li>
+        <li class="rv"><div>
+          <h3>Publicación y ajustes</h3>
+          <p>Lo publicamos, lo revisas con calma y hago los cambios que haga falta. Si después quieres agregar algo, aquí sigo.</p>
+        </div></li>
+      </ol>
+    </section>
+
+    <section id="proyecto">
+      <div class="sec-head rv">
+        <h2>Un proyecto</h2>
+        <span class="label">Hotpst</span>
+      </div>
+      <div class="proj">
+        <div class="rv">
+          <h3>Tienda web de perfumes y decants</h3>
+          <p>Un sitio para una tienda de perfumes y decants con identidad propia: logo, catálogo que se puede editar sin tocar el código y un registro de compras para llevar el control de cada pedido. Todo pensado para que quien lo administra lo pueda usar a diario sin complicaciones.</p>
+          <ul class="tags">
+            <li>HTML</li><li>CSS</li><li>JavaScript</li><li>Catálogo editable</li><li>Registro de compras</li>
+          </ul>
+        </div>
+        <div class="mock rv" style="--d:.15s" aria-label="Ilustración de un catálogo editable">
+          <span class="label">Catálogo · ejemplo</span>
+          <div class="mock-row"><span>Decant 5 ml</span><span>editable</span></div>
+          <div class="mock-row"><span>Decant 10 ml</span><span>editable</span></div>
+          <div class="mock-row"><span>Frasco completo</span><span>editable</span></div>
+          <div class="mock-row"><span>Registro de compras</span><span>activo</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="herramientas">
+      <div class="sec-head rv">
+        <h2>Mis herramientas</h2>
+        <span class="label">Lo que uso a diario</span>
+      </div>
+      <ul class="tools">
+        <li class="rv" style="--d:0s">HTML</li><li class="rv" style="--d:.08s">CSS</li><li class="rv" style="--d:.16s">JavaScript</li><li class="rv" style="--d:.24s">VS Code</li><li class="rv" style="--d:.32s">GitHub</li>
+      </ul>
+    </section>
+
+    <section id="contacto">
+      <div class="sec-head rv">
+        <h2>Hablemos</h2>
+        <span class="label">Escríbeme</span>
+      </div>
+      <div class="contact">
+        <div class="rv">
+          <p>Cuéntame qué necesitas. Llena los campos y se arma un mensaje listo para que me lo mandes con un toque, o cópialo y envíalo por el medio que prefieras. Con eso ya tengo lo básico para responderte con una propuesta.</p>
+          <div class="phone" id="tarjeta-tel" hidden>
+            <span class="label">WhatsApp</span>
+            <strong id="tel-texto"></strong>
+            <div class="cta-row" style="margin-top:6px">
+              <a class="btn solid" data-wa target="_blank" rel="noopener">Escribirme <span class="ar" aria-hidden="true">→</span></a>
+              <button class="btn ghost" type="button" id="copiar-tel">Copiar número</button>
+            </div>
+          </div>
+        </div>
+        <form id="form-contacto" class="rv" style="--d:.15s" autocomplete="off">
+          <label for="nombre">Tu nombre
+            <input id="nombre" type="text" placeholder="Cómo te llamas">
+          </label>
+          <label for="tipo">Qué necesitas
+            <select id="tipo">
+              <option>una página de presentación</option>
+              <option>un catálogo o tienda</option>
+              <option>un portafolio o sitio personal</option>
+              <option>un rediseño de mi sitio actual</option>
+              <option>algo distinto, te explico</option>
+            </select>
+          </label>
+          <label for="detalle">Cuéntame la idea
+            <textarea id="detalle" placeholder="A qué te dedicas, a quién le hablas, qué te gustaría que hiciera el sitio…"></textarea>
+          </label>
+          <label for="mensaje">Tu mensaje listo
+            <textarea id="mensaje" readonly></textarea>
+          </label>
+          <div class="cta-row" style="margin-top:0">
+            <a class="btn solid" data-wa-msg hidden target="_blank" rel="noopener">Enviar por WhatsApp <span class="ar" aria-hidden="true">→</span></a>
+            <button class="btn ghost" type="submit" id="copiar">Copiar mensaje</button>
+          </div>
+          <p class="out-note" id="nota" role="status"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Ángel · Creador de sitios y páginas web</span>
+    <span>Hecho a mano con HTML, CSS y JavaScript</span>
+  </footer>
+</div>
+
+<script>
+(function () {
+  /* Número de WhatsApp: solo dígitos con lada de país (ejemplo: 521234567890). Vacío = no se muestra. */
+  var PHONE = '523351928490';
+  var PHONE_TXT = '+52 335 192 8490';
+
+  /* progreso de lectura */
+  var barra = document.getElementById('progreso');
+  function progreso() {
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    var p = h > 0 ? Math.min(1, Math.max(0, window.scrollY / h)) : 0;
+    barra.style.transform = 'scaleX(' + p + ')';
+  }
+  window.addEventListener('scroll', progreso, { passive: true });
+  window.addEventListener('resize', progreso);
+  progreso();
+
+  /* aparecer al hacer scroll */
+  var items = document.querySelectorAll('.rv');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+    items.forEach(function (el) { io.observe(el); });
+  } else {
+    items.forEach(function (el) { el.classList.add('in'); });
+  }
+
+  /* mensaje de contacto */
+  var nombre = document.getElementById('nombre');
+  var tipo = document.getElementById('tipo');
+  var detalle = document.getElementById('detalle');
+  var salida = document.getElementById('mensaje');
+  var nota = document.getElementById('nota');
+  var form = document.getElementById('form-contacto');
+  var waMsg = document.querySelector('[data-wa-msg]');
+  var digitos = String(PHONE).replace(/\D/g, '');
+
+  function armar() {
+    var n = nombre.value.trim();
+    var d = detalle.value.trim();
+    var t = 'Hola Ángel, ' + (n ? 'soy ' + n + ' y ' : '') + 'me gustaría que me ayudaras con ' + tipo.value + '.';
+    if (d) t += '\n\nMi idea: ' + d;
+    t += '\n\n¿Platicamos?';
+    salida.value = t;
+    if (digitos) waMsg.href = 'https://wa.me/' + digitos + '?text=' + encodeURIComponent(t);
+  }
+  [nombre, tipo, detalle].forEach(function (el) {
+    el.addEventListener('input', armar);
+    el.addEventListener('change', armar);
+  });
+
+  function copiar(texto, aviso, origen) {
+    function plan() {
+      if (origen) { origen.focus(); origen.select(); }
+      nota.textContent = 'Selecciona el texto y cópialo con Ctrl+C o manteniendo presionado.';
+    }
+    try {
+      navigator.clipboard.writeText(texto).then(function () { nota.textContent = aviso; }, plan);
+    } catch (err) { plan(); }
+  }
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    armar();
+    copiar(salida.value, 'Mensaje copiado. Ya puedes pegarlo donde quieras enviármelo.', salida);
+  });
+
+  /* WhatsApp: solo aparece cuando hay número */
+  if (digitos) {
+    var base = 'https://wa.me/' + digitos + '?text=' + encodeURIComponent('Hola Ángel, vi tu sitio y me gustaría platicar de un proyecto.');
+    document.querySelectorAll('[data-wa]').forEach(function (a) { a.href = base; a.hidden = false; });
+    waMsg.hidden = false;
+    document.getElementById('tel-texto').textContent = PHONE_TXT || ('+' + digitos);
+    document.getElementById('tarjeta-tel').hidden = false;
+    document.getElementById('copiar-tel').addEventListener('click', function () {
+      copiar(PHONE_TXT || ('+' + digitos), 'Número copiado.', null);
+    });
+  }
+  armar();
+})();
+</script>
+
+</body></html>
